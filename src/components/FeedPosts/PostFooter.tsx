@@ -15,10 +15,11 @@ import {
 } from "../../assets/Constants";
 
 type Props = {
-  username: string;
+  username?: string;
+  isProfile?: boolean;
 };
 
-const PostFooter = ({ username }: Props) => {
+const PostFooter = ({ username, isProfile }: Props) => {
   const [liked, setLiked] = useState<boolean>(false);
   const [likes, setLikes] = useState<number>(1000);
 
@@ -28,7 +29,7 @@ const PostFooter = ({ username }: Props) => {
   };
 
   return (
-    <Box mb={10}>
+    <Box mb={10} mt={"auto"}>
       <Flex alignItems={"center"} gap={4} w={"full"} pt={0} mb={2} mt={4}>
         <Box onClick={handleLike} cursor={"pointer"} fontSize={18}>
           {!liked ? <NotificationsLogo /> : <UnlikeLogo />}
@@ -41,16 +42,20 @@ const PostFooter = ({ username }: Props) => {
         {likes} likes
       </Text>
 
-      <Text fontSize={"sm"} fontWeight={700}>
-        {username}{" "}
-        <Text as={"span"} fontWeight={400}>
-          {" "}
-          Feeling Good
-        </Text>
-      </Text>
-      <Text fontSize={"sm"} color={"gray"}>
-        View all 100 comments
-      </Text>
+      {!isProfile && (
+        <>
+          <Text fontSize={"sm"} fontWeight={700}>
+            {username}{" "}
+            <Text as={"span"} fontWeight={400}>
+              {" "}
+              Feeling Good
+            </Text>
+          </Text>
+          <Text fontSize={"sm"} color={"gray"}>
+            View all 100 comments
+          </Text>
+        </>
+      )}
 
       <Flex
         alignItems={"center"}
