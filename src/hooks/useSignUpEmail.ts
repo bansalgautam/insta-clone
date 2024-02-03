@@ -1,4 +1,4 @@
-import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, firestore } from "../firebase/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
@@ -11,14 +11,12 @@ type Input = {
 };
 
 const useSignUpEmail = () => {
-  const [createUserWithEmailAndPassword, error] =
-    useCreateUserWithEmailAndPassword(auth);
-
-  const [errMessage, setErrorMessage] = useState<string>("");
+  const [errMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const signup = async (inputs: Input) => {
     setLoading(true);
+
     if (
       !inputs.email ||
       !inputs.password ||
@@ -26,23 +24,22 @@ const useSignUpEmail = () => {
       !inputs.username
     ) {
       setErrorMessage("Please fill in all the fields");
+      setLoading(false);
       return;
     }
+
     try {
-      // Trying to create a new user
       const newUser = await createUserWithEmailAndPassword(
+        auth,
         inputs.email,
         inputs.password
       );
-
-      // If there is error, it will be caught by the error state
-      if (!newUser && error) {
+      if (!newUser) {
         setErrorMessage("Failed to create an account. Please try again.");
+        setLoading(false);
       }
 
-      // If there is no error, we will add the user to the database
       if (newUser) {
-        console.log(newUser);
         const userDoc = {
           uid: newUser.user.uid,
           email: inputs.email,
@@ -50,25 +47,24 @@ const useSignUpEmail = () => {
           fullName: inputs.fullName,
           bio: "",
           profilePicURL: "",
-          followers: <string[]>[],
-          following: <string[]>[],
-          posts: <string[]>[],
+          followers: [],
+          following: [],
+          posts: [],
           createdAt: Date.now(),
         };
 
         await setDoc(doc(firestore, "users", newUser.user.uid), userDoc);
-
         localStorage.setItem("user-info", JSON.stringify(userDoc));
+        setLoading(false);
       }
     } catch (err) {
       console.log(err);
       setErrorMessage("Failed to create an account. Please try again.");
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
-  return { signup, error, errMessage, loading };
+  return { errMessage, loading, signup };
 };
 
 export default useSignUpEmail;

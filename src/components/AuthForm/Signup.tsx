@@ -75,7 +75,7 @@ const Signup = () => {
         </InputRightElement>
       </InputGroup>
 
-      {!loading && errMessage.trim().length > 0 && (
+      {errMessage && !loading && (
         <Alert status="error" fontSize={13} p={2} borderRadius={4}>
           <AlertIcon fontSize={12} />
           {errMessage}
